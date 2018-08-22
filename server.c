@@ -136,16 +136,31 @@ int main(void)
 
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
-			char client_message[10000],*welcome="****************************************\n"
+			char client_message[999999],*welcome="****************************************\n"
 			"** Welcome to the information server. **\n"
 			"****************************************\n",*sym="% ";
 			char *buffer;
 			send(new_fd, welcome,strlen(welcome),0);
 			while(1){
 				first=1;
-				bzero(client_message,10000);
+				bzero(client_message,999999);
 				send(new_fd, sym,strlen(sym),0);
-				int count=read(new_fd,client_message,10000);
+
+				int count=0;
+				int flag=1;
+
+				while(flag){
+					char tmp[20]={0};
+					count+=read(new_fd,tmp,20);
+					// printf("%d\n",count);
+					strcat(client_message,tmp);
+					// printf("%s\n",client_message);
+					if(strstr(tmp,"\r\n")!= NULL || strstr(tmp,"\n")!= NULL ) {
+						flag=0;	
+					}
+					// printf("%d\n",flag);
+				}
+				// count=read(new_fd,client_message,999999);
 
 				if(count<=0) exit(0);
 
